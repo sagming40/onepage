@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+
+# Environment
+.env
+.env.local
+
+# Build
+dist/
+build/
+
+# Uploads (실제 업로드된 이미지는 Git에 안 올림)
+backend/uploads/*
+!backend/uploads/.gitkeep
+
+# IDE
+.vscode/*
+!.vscode/extensions.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
