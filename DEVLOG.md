@@ -13,6 +13,23 @@
 - 형식 · 날짜 / 관련 마일스톤 / 한 일 / 막혔던 점 / 다음에 할 일
 - 설계 판단이나 "왜 이렇게 했는지"는 [결정 기록](#결정-기록)에 따로 남긴다
 
+## 📍 현재 상태
+
+> 새 세션 시작 시 여기부터 읽을 것. 마일스톤 종료마다 이 블록만 갈아끼운다.
+
+| 항목 | 내용 |
+|---|---|
+| **현재 위치** | M0 완료 → M1 착수 직전 |
+| **완료** | 기획 문서 7종 · Git Repository · 개발 환경 구성 |
+| **다음 작업** | `schema.prisma`에 02_erd.md 모델 정의 → `npx prisma migrate dev` |
+
+**환경 요약**
+
+- Node.js v24.15.0 / npm 11.12.1 / MariaDB 12.2.2
+- DB · `onepage` (utf8mb4_unicode_ci), 테이블 0개 (아직 마이그레이션 전)
+- Prisma **6.x 고정** — 7.x는 설정 방식이 다름 ([결정 기록](#결정-기록) 참조)
+- Repository · `sagming40/onepage` (Public)
+
 <details>
 <summary><b>새 항목 템플릿 (펼쳐서 복사)</b></summary>
 
@@ -38,7 +55,7 @@
 
 </details>
 
-## 2026-08-02 — M0 진행: 기획 문서 작성 및 통합 정리
+## 2026-08-02 (오전) — M0 진행: 기획 문서 작성 및 통합 정리
 
 **관련 마일스톤** · M0 (프로젝트 준비 및 설계) → 진행 중
 
@@ -71,6 +88,43 @@
 - M0 마무리 — Git Repository 생성, `.gitignore` 작성, 개발 환경 구성 (Node.js / MariaDB / Prisma)
 - M1 착수 — Express 서버 뼈대, Prisma 스키마 정의
 
+## 2026-08-02 (오후) — M0 완료: Git Repository 및 개발 환경 구성
+
+**관련 마일스톤** · M0 (프로젝트 준비 및 설계) → 완료
+
+**한 일**
+
+- 로컬 Git 저장소 초기화 → GitHub 원격 저장소(`sagming40/onepage`, Public) 연결 및 push
+- `.gitignore` 작성 (node_modules, .env, uploads, dist 등 제외)
+- 설치 환경 버전 확인 — Node.js v24.15.0 / npm 11.12.1 / MariaDB 12.2.2
+- MariaDB에 `onepage` 데이터베이스 생성 (utf8mb4 / utf8mb4_unicode_ci)
+- Backend 패키지 설치
+  - 런타임 · express@5, @prisma/client, bcrypt, jsonwebtoken, multer, cors, dotenv
+  - 개발용 · typescript, @types/*, ts-node-dev, prisma
+- `tsconfig.json` 생성, Prisma 초기화 (`--datasource-provider mysql`)
+- `backend/src` 하위 폴더 뼈대 생성 (config, controllers, services, repositories, routes, middlewares, validators, utils) — `.gitkeep`으로 빈 폴더 Git 추적
+- `prisma db pull`로 DB 연결 검증 완료
+- `05_dev-guide.md` 버전 정보 실제 설치값으로 갱신 (Node v22→v24, MariaDB 11→12)
+
+**막혔던 점 / 트러블슈팅**
+
+- `mariadb --version`이 `CommandNotFoundException` → 설치는 됐으나 PATH 미등록이 원인. 시스템 환경변수 Path에 `C:\Program Files\MariaDB 12.2\bin` 추가 후 **터미널 재시작**으로 해결
+  - 교훈: PATH는 터미널 시작 시 한 번 읽으므로, 수정 후 기존 터미널에선 반영 안 됨
+- **`npx prisma init`이 Prisma 7 기준으로 동작** — `prisma.config.ts` + `.claude/` `.windsurf/` `.agents/` skills 폴더까지 생성됨. Prisma 7부터 `schema.prisma`의 `url = env(...)`가 막히고 드라이버 어댑터 방식으로 변경됨
+  - → 학습 목적상 Prisma **6.x로 다운그레이드** 결정 ([결정 기록](#결정-기록) 참조)
+- 다운그레이드 후 재실행 시 `A folder called prisma already exists` 에러 → `npm uninstall`은 패키지만 지우고 생성된 파일은 남김. `prisma/`, `prisma.config.ts` 수동 삭제 후 해결
+- **`.env`가 PostgreSQL 템플릿 값(`prisma+postgres://...`)으로 남아있었음** — Prisma가 `DATABASE_URL`이 이미 존재하면 덮어쓰지 않는 정책(`warn Prisma would have added DATABASE_URL but it already exists`) 때문. 수동으로 전체 교체
+  - 교훈: 경고(warn) 메시지를 흘려보내지 말 것. "안 했다"는 알림이 곧 "직접 해야 한다"는 뜻
+- `prisma.config.ts` 삭제 후 `tsconfig.json`에 `No inputs were found` 경고 → `.ts` 파일이 하나도 없어서 뜨는 정보성 메시지. `src/` 아래 실제 코드 생기면 자동 해소
+- `prisma db pull` 실행 시 `P4001 The introspected database was empty` → **에러가 아니라 정상**. 접속은 성공했고 테이블이 아직 없을 뿐. `db pull`은 DB→코드 방향이라 빈 DB에선 가져올 게 없음
+  - 교훈: 에러 메시지 중 접속 성공 로그(`Datasource "db": MySQL database "onepage" at "localhost:3306"`)를 먼저 확인하면 연결 문제인지 데이터 문제인지 구분됨
+
+**다음에 할 일**
+
+- M1 착수 — `schema.prisma`에 02_erd.md 기준 모델 8종 정의
+- `npx prisma migrate dev`로 실제 테이블 생성
+- Express 서버 뼈대(`app.ts`, `server.ts`) 작성
+
 ## 결정 기록
 
 > 왜 그렇게 했는지에 대한 기록. 나중에 "이거 왜 이렇게 했더라?" 할 때 근거가 되는 곳.
@@ -98,6 +152,23 @@ ROADMAP은 문서라기보다 체크리스트 성격이라 `docs/` 밖 루트에
 장기적으로는 Swagger(OpenAPI) 자동 생성으로 넘어가는 게 맞다고 판단했으나, 아직 코드가 한 줄도 없는 시점이라 도입 시점을 **M1 완료 이후**로 미룬다.
 
 그때까지는 수기 관리하되, 실제 구현과 어긋난 부분이 생기면 이 DEVLOG에 기록해두고 문서 정리 단계에서 일괄 반영한다.
+
+</details>
+
+<details>
+<summary><b>2026-08-02 · Prisma를 최신 7.x가 아닌 6.x로 고정한 이유</b></summary>
+
+`npx prisma init` 실행 시 Prisma 7이 설치되며 아래 변경사항이 확인됨.
+
+- `schema.prisma`의 `datasource { url = env("DATABASE_URL") }` 문법 **폐기**
+- DB 주소가 두 곳으로 분리 — CLI용(`prisma.config.ts`)과 런타임용(드라이버 어댑터)
+- 런타임 연결에 `@prisma/adapter-*` 별도 설치 및 코드 내 명시적 연결 필요
+
+**판단** · 이 프로젝트의 목적은 "ORM으로 DB와 코드를 연결하는 개념 습득"이지 "Prisma 7의 신규 아키텍처 학습"이 아니다. 개념과 신규 문법을 동시에 배우면 에러 발생 시 원인이 개념 문제인지 버전 문제인지 구분되지 않아 디버깅 비용이 커진다.
+
+따라서 **M1~M2에서 ORM 기본기를 익힌 뒤, 이후 7.x 업그레이드를 별도 과제로 진행**하기로 한다. 그때는 "무엇이 왜 바뀌었는지" 비교하며 배울 수 있어 학습 효율이 더 높다.
+
+`package.json`에 `prisma@6`, `@prisma/client@6`으로 고정되어 있으므로 임의 업그레이드 주의.
 
 </details>
 

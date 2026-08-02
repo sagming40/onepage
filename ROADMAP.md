@@ -1,12 +1,13 @@
 # 📅 ROADMAP
 
 > **프로젝트명** : One Page
-> **문서 버전** : v2.1
+> **문서 버전** : v2.3
 > **작성일** : 2026-08-02
 > **변경 이력**
 > - v2.0 — Git 전략 / Commit Convention 항목을 [개발 가이드](./docs/05_dev-guide.md)로 이관
 > - v2.1 — 헤더 계층 정리
 > - v2.2 — DEVLOG 연동 (구조 트리 · 커밋 컨벤션 · M0 작업목록)
+> - v2.3 — M0 완료 처리
 
 ## 1. 개발 단계
 
@@ -28,12 +29,12 @@ Optimization
 
 | 단계 | 목표 | 상태 |
 |---|---|---|
-| [Milestone 0](#milestone-0--프로젝트-준비-및-설계) | 프로젝트 준비 및 설계 | 예정 |
-| [Milestone 1](#milestone-1--mvp-개발) | MVP 개발 | 예정 |
-| [Milestone 2](#milestone-2--핵심-기능-확장) | 핵심 기능 확장 | 예정 |
-| [Milestone 3](#milestone-3--ai-기능-개발) | AI 기능 개발 | 예정 |
-| [Milestone 4](#milestone-4--배포-환경-구축) | 배포 환경 구축 | 예정 |
-| [Milestone 5](#milestone-5--최적화-및-개선) | 최적화 및 개선 | 예정 |
+| [Milestone 0](#milestone-0--프로젝트-준비-및-설계) | 프로젝트 준비 및 설계 | ✅ 완료 |
+| [Milestone 1](#milestone-1--mvp-개발) | MVP 개발 | 🔄 진행 예정 |
+| [Milestone 2](#milestone-2--핵심-기능-확장) | 핵심 기능 확장 | ⏳ 예정 |
+| [Milestone 3](#milestone-3--ai-기능-개발) | AI 기능 개발 | ⏳ 예정 |
+| [Milestone 4](#milestone-4--배포-환경-구축) | 배포 환경 구축 | ⏳ 예정 |
+| [Milestone 5](#milestone-5--최적화-및-개선) | 최적화 및 개선 | ⏳ 예정 |
 
 ## 3. 개발 우선순위
 
@@ -71,21 +72,22 @@ Optimization
 
 ### 작업 목록
 
-- [ ] 프로젝트 기획
-- [ ] 요구사항 정의
-- [ ] 기능 명세 작성
-- [ ] ERD 설계
-- [ ] API 설계
-- [ ] UI/UX 설계
-- [ ] DEVLOG 작성 규칙 수립
-- [ ] Git Repository 생성
-- [ ] 개발 환경 구성
+- [x] 프로젝트 기획
+- [x] 요구사항 정의
+- [x] 기능 명세 작성
+- [x] ERD 설계
+- [x] API 설계
+- [x] UI/UX 설계
+- [x] DEVLOG 작성 규칙 수립
+- [x] Git Repository 생성
+- [x] 개발 환경 구성
 
 ### 완료 기준
 
-- 프로젝트 문서 작성 완료
-- Frontend / Backend 초기 구조 생성
-- Database 설계 완료
+- [x] 프로젝트 문서 작성 완료
+- [x] Backend 초기 구조 생성
+- [x] Database 설계 완료 (문서) · `onepage` DB 생성 완료
+- [ ] Frontend 초기 구조 생성 → M1에서 진행
 
 ## Milestone 1 — MVP 개발
 
@@ -95,9 +97,11 @@ Optimization
 
 **Backend**
 
+- [x] MariaDB 연결 (M0에서 선행 완료)
+- [x] Prisma 설정 (M0에서 선행 완료 · 6.x 고정)
 - [ ] Express 서버 구축
-- [ ] MariaDB 연결
-- [ ] Prisma 설정
+- [ ] Prisma 스키마 작성 (02_erd.md 기준)
+- [ ] 마이그레이션 실행 (테이블 생성)
 - [ ] 회원 API 구현
 - [ ] JWT 인증 구현
 
