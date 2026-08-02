@@ -73,7 +73,7 @@ One Page는 사용자의 하루 기록을 저장하고, AI를 활용하여 기�
 
 | 항목 | 기술 | 버전 |
 |---|---|---|
-| Runtime | Node.js | v22.x |
+| Runtime | Node.js | v24.x |
 | Framework | React | v19.x |
 | Language | TypeScript | v5.x |
 | Build Tool | Vite | v7.x |
@@ -87,7 +87,7 @@ One Page는 사용자의 하루 기록을 저장하고, AI를 활용하여 기�
 
 | 항목 | 기술 | 버전 |
 |---|---|---|
-| Runtime | Node.js | v22.x |
+| Runtime | Node.js | v24.x |
 | Framework | Express | v5.x |
 | Language | TypeScript | |
 | ORM | Prisma | v6.x |
@@ -98,7 +98,7 @@ One Page는 사용자의 하루 기록을 저장하고, AI를 활용하여 기�
 
 | 항목 | 기술 | 버전 |
 |---|---|---|
-| Database | MariaDB | 11.x |
+| Database | MariaDB | 12.x |
 | ORM | Prisma | v6.x |
 
 ### 3.5 AI
