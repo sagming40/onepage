@@ -19,16 +19,17 @@
 
 | 항목 | 내용 |
 |---|---|
-| **현재 위치** | M0 완료 → M1 착수 직전 |
-| **완료** | 기획 문서 7종 · Git Repository · 개발 환경 구성 |
-| **다음 작업** | `schema.prisma`에 02_erd.md 모델 정의 → `npx prisma migrate dev` |
+| **현재 위치** | M1 진행 중 — Backend 인증 파트 완료, Diary CRUD 착수 전 |
+| **완료** | Prisma 스키마(8모델) 및 마이그레이션 · Express 서버 뼈대 · 회원가입/로그인 API · JWT 인증 미들웨어 |
+| **다음 작업** | 일기 CRUD 4종 (작성/조회/수정/삭제) — `feature/diary-crud` 브랜치에서 진행 |
 
 **환경 요약**
 
 - Node.js v24.15.0 / npm 11.12.1 / MariaDB 12.2.2
-- DB · `onepage` (utf8mb4_unicode_ci), 테이블 0개 (아직 마이그레이션 전)
-- Prisma **6.x 고정** — 7.x는 설정 방식이 다름 ([결정 기록](#결정-기록) 참조)
-- Repository · `sagming40/onepage` (Public)
+- DB · `onepage`, 테이블 9개 (users, diaries, photos, musics, tags, diary_tags, ai_reports, time_capsules, _prisma_migrations)
+- Prisma **6.x 고정** · TypeScript **5.9.2 고정** (사유는 결정 기록 참조)
+- Repository · `sagming40/onepage` (Public) · `main`에 PR #1 병합 완료, `feature/express-setup` 브랜치 삭제
+- 데스크탑/노트북 듀얼 환경 — 각자 로컬 MariaDB 사용, 작업 전후 반드시 `git pull`/`push`
 
 <details>
 <summary><b>새 항목 템플릿 (펼쳐서 복사)</b></summary>
@@ -125,6 +126,78 @@
 - `npx prisma migrate dev`로 실제 테이블 생성
 - Express 서버 뼈대(`app.ts`, `server.ts`) 작성
 
+## 2026-08-02 (오후 11) — M1 진행: Prisma 스키마 정의 및 초기 마이그레이션
+
+**관련 마일스톤** · M1 (MVP 개발) → 진행 중
+
+**한 일**
+
+- `schema.prisma`에 02_erd.md 기준 모델 8종 정의 (User, Diary, Photo, Music, Tag, DiaryTag, AiReport, TimeCapsule)
+- Emotion(7종) / ReportType(2종) enum 추가, 인덱스 및 Soft Delete 필드 반영
+- PK 타입 BIGINT → INT로 결정 (JSON 직렬화 문제 회피 — 결정 기록 참조)
+- `schema.prisma` 위치를 05_dev-guide.md 원안대로 `src/prisma/`에 유지, `package.json`에 `prisma.schema` 경로 지정
+- `npx prisma migrate dev --name init` 실행 → 테이블 9개 생성 확인 (HeidiSQL 검증)
+
+**막혔던 점 / 트러블슈팅**
+
+- `@map("created_at)` 따옴표 누락, `diary_tag` 테이블명 오타(복수형 누락) → `prisma validate`로 커밋 전 사전 발견
+- `package.json#prisma` 설정 방식이 Prisma 7부터 deprecated라는 warn 확인 — 6.x 고정이라 현재는 무해, 7.x 전환 시 `prisma.config.ts`로 이전 필요
+  - 교훈: `prisma validate`는 DB를 안 건드리는 무료 리허설이라, `migrate dev` 전에 항상 먼저 돌려볼 것
+
+**다음에 할 일**
+
+- Express 서버 뼈대(`app.ts`, `server.ts`) 작성
+
+## 2026-08-03 (오전 1~3) — M1 진행: Express 서버 뼈대 구축
+
+**관련 마일스톤** · M1 (MVP 개발) → 진행 중
+
+**한 일**
+
+- `app.ts`/`server.ts` 분리 (Express 인스턴스 정의와 리스닝 로직 분리)
+- CORS, `express.json()` 미들웨어 적용
+- API 명세서 공통 응답 형식(`success`/`message`/`data`) 규칙 반영
+- 헬스체크 라우트(`/api/health`), 404 핸들러, 에러 핸들러 구현
+
+**막혔던 점 / 트러블슈팅**
+
+- **TypeScript 7.x + ts-node 비호환** — `npx ts-node-dev` 실행 시 `Cannot read properties of undefined (reading 'fileExists')` 에러. TS7이 컴파일러 API를 완전히 교체한 신규 아키텍처라 ts-node가 아직 미지원 (`TypeStrong/ts-node#2174`) → **TypeScript 5.9.2로 다운그레이드** (결정 기록 참조)
+- **`tsconfig.json` module 설정 충돌** — `"module": "nodenext"` + `"verbatimModuleSyntax": true` 조합이 `package.json`의 `"type": "commonjs"`와 모순되어 `import`/`export` 자체가 컴파일 에러(TS1295) → `module: "commonjs"`, `verbatimModuleSyntax: false`로 수정
+- **`esModuleInterop` 미설정** — `import express from "express"`처럼 CommonJS 패키지를 ESM 방식으로 default import 하면서 TS1259 에러 → `esModuleInterop: true` 추가
+  - 교훈: 위 세 가지는 전부 "CommonJS 프로젝트면 관련 설정을 전부 CommonJS 방향으로 통일해야 한다"는 하나의 원인에서 갈라져 나온 증상이었음
+
+**다음에 할 일**
+
+- 회원가입/로그인 API 구현
+
+## 2026-08-03 (오후 2~5) — M1 완료: 회원 인증(회원가입/로그인/JWT) 구현 및 PR #1 병합
+
+**관련 마일스톤** · M1 (MVP 개발) → 진행 중 (Backend 인증 파트 완료)
+
+**한 일**
+
+- Repository/Service/Controller 계층 분리 적용 (`user.repository.ts`, `auth.service.ts`, `auth.controller.ts`)
+- bcrypt 기반 비밀번호 해싱(SALT_ROUNDS 10), 회원가입 API (이메일/닉네임 중복 검사)
+- 로그인 API — JWT accessToken 발급, "이메일 없음"과 "비밀번호 틀림"을 동일 에러로 통일해 이메일 존재 여부 비노출
+- JWT 발급/검증 유틸(`utils/jwt.ts`) 분리, 인증 미들웨어(`auth.middleware.ts`) 구현
+- `GET /users/me`로 미들웨어 동작 검증 (토큰 있음/없음/위조 3가지 케이스 모두 통과)
+- `feature/express-setup` 브랜치 → PR #1 생성 → `main` 병합, 로컬/원격 브랜치 정리
+- 노트북 환경에서도 동일 작업 이어감 (로컬 MariaDB에 마이그레이션 재적용, 듀얼 환경 워크플로 확립)
+
+**막혔던 점 / 트러블슈팅**
+
+- `auth.service.ts`의 `errorCode` 타입을 `String`(대문자, 객체 래퍼)으로 잘못 선언 → `string`(소문자, 원시 타입)으로 수정
+- `auth.controller.ts`에 자동완성 오작동으로 무관한 `import { access } from "fs"`가 끼어듦 → 삭제
+- `noUncheckedIndexedAccess` 설정 때문에 `authHeader.split(" ")[1]`의 타입이 `string | undefined`로 추론되어 `verifyAccessToken` 인자 타입 에러 → `if (!token) return` 방어 코드로 타입 좁히기(narrowing) 처리
+- `app.ts` 에러 핸들러에 `mesaage`, `INTERVAL_SERVER_ERROR` 오타 방치돼있던 것 발견 및 수정 (500 에러 응답에서만 드러나 뒤늦게 발견됨)
+- Windows PowerShell에서 `curl`이 `Invoke-WebRequest`의 별칭이라 진짜 curl과 헤더 문법이 달라 혼선 → `Invoke-RestMethod` 사용으로 통일
+  - 교훈: 평소 안 쓰이는 코드 경로(에러 핸들러 등)의 오타는 실제로 그 경로를 타봐야만 발견됨. 방어 로직도 최소 한 번은 의도적으로 실패시켜서 검증할 것
+
+**다음에 할 일**
+
+- `feature/diary-crud` 브랜치 생성
+- 일기 작성/조회/수정/삭제 API 구현
+
 ## 결정 기록
 
 > 왜 그렇게 했는지에 대한 기록. 나중에 "이거 왜 이렇게 했더라?" 할 때 근거가 되는 곳.
@@ -169,6 +242,45 @@ ROADMAP은 문서라기보다 체크리스트 성격이라 `docs/` 밖 루트에
 따라서 **M1~M2에서 ORM 기본기를 익힌 뒤, 이후 7.x 업그레이드를 별도 과제로 진행**하기로 한다. 그때는 "무엇이 왜 바뀌었는지" 비교하며 배울 수 있어 학습 효율이 더 높다.
 
 `package.json`에 `prisma@6`, `@prisma/client@6`으로 고정되어 있으므로 임의 업그레이드 주의.
+
+</details>
+
+<details>
+<summary><b>2026-08-02 · PK 타입을 BIGINT 대신 INT로 정한 이유</b></summary>
+
+02_erd.md 원안은 모든 PK를 BIGINT로 설계했으나, Prisma가 BIGINT 컬럼을 TypeScript `BigInt` 타입으로 매핑하면서 문제 발생.
+
+`BigInt`는 JavaScript 표준 `JSON.stringify()`로 직렬화가 안 됨 (`TypeError: Do not know how to serialize a BigInt`). Express에서 `res.json()`으로 응답하는 순간 전부 에러가 나는 구조라, M1 API 구현 단계에서 반드시 마주칠 문제였음.
+
+**판단** · 개인 다이어리 서비스 특성상 레코드 수가 INT 범위(약 21억)를 넘길 가능성이 없음(하루 1건 기준 580만 년 분량). BigInt 직렬화 처리를 배우는 것보다 Express/JWT 같은 M1 핵심 개념에 시간을 쓰는 게 학습 우선순위에 맞다고 판단.
+
+향후 레코드 규모가 실제로 문제가 되면 그때 BigInt + 직렬화 전략으로 마이그레이션 검토.
+
+</details>
+
+<details>
+<summary><b>2026-08-02 · schema.prisma를 src/prisma/로 유지한 이유</b></summary>
+
+`npx prisma init` 기본 위치는 `backend/prisma/`이지만, 05_dev-guide.md 설계상 Backend 내부 코드는 전부 `src/` 하위에 위치시키는 원칙이었음.
+
+Prisma CLI는 기본적으로 `prisma/schema.prisma`만 인식하므로, `package.json`에 `"prisma": { "schema": "src/prisma/schema.prisma" }` 설정을 추가해 위치를 지정함.
+
+</details>
+
+<details>
+<summary><b>2026-08-02 · TypeScript를 7.x가 아닌 5.9.2로 고정한 이유</b></summary>
+
+package.json에 typescript@^7.0.2가 설치되어 있었으나, `npx ts-node-dev` 실행 시
+`TypeError: Cannot read properties of undefined (reading 'fileExists')` 에러 발생.
+
+원인 확인 결과, TypeScript 7은 기존 컴파일러 API를 완전히 교체한 신규 아키텍처(네이티브 컴파일러)이며,
+ts-node가 아직 이를 지원하지 않는 것으로 확인됨(TypeStrong/ts-node GitHub Issue #2174).
+
+Prisma 6.x 고정 결정과 동일한 논리로, 학습 단계에서 최신 버전을 쫓다가
+생태계 호환성 문제에 시간을 쓰는 것보다 안정 버전에서 개념을 먼저 익히는 것을 우선함.
+
+typescript@5.9.2, @types/node@24로 다운그레이드. tsconfig.json도 CommonJS 기준으로
+`module: "commonjs"`, `esModuleInterop: true`, `verbatimModuleSyntax: false`로 정리.
 
 </details>
 

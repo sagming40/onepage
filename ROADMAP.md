@@ -1,13 +1,13 @@
 # 📅 ROADMAP
 
 > **프로젝트명** : One Page
-> **문서 버전** : v2.3
-> **작성일** : 2026-08-02
+> **문서 버전** : v2.4
 > **변경 이력**
 > - v2.0 — Git 전략 / Commit Convention 항목을 [개발 가이드](./docs/05_dev-guide.md)로 이관
 > - v2.1 — 헤더 계층 정리
 > - v2.2 — DEVLOG 연동 (구조 트리 · 커밋 컨벤션 · M0 작업목록)
 > - v2.3 — M0 완료 처리
+> - v2.4 — M1 Backend 인증 파트 완료 처리 (Express 서버/Prisma 마이그레이션/회원 API/JWT)
 
 ## 1. 개발 단계
 
@@ -30,7 +30,7 @@ Optimization
 | 단계 | 목표 | 상태 |
 |---|---|---|
 | [Milestone 0](#milestone-0--프로젝트-준비-및-설계) | 프로젝트 준비 및 설계 | ✅ 완료 |
-| [Milestone 1](#milestone-1--mvp-개발) | MVP 개발 | 🔄 진행 예정 |
+| [Milestone 1](#milestone-1--mvp-개발) | MVP 개발 | 🔄 진행 중 |
 | [Milestone 2](#milestone-2--핵심-기능-확장) | 핵심 기능 확장 | ⏳ 예정 |
 | [Milestone 3](#milestone-3--ai-기능-개발) | AI 기능 개발 | ⏳ 예정 |
 | [Milestone 4](#milestone-4--배포-환경-구축) | 배포 환경 구축 | ⏳ 예정 |
@@ -99,11 +99,11 @@ Optimization
 
 - [x] MariaDB 연결 (M0에서 선행 완료)
 - [x] Prisma 설정 (M0에서 선행 완료 · 6.x 고정)
-- [ ] Express 서버 구축
-- [ ] Prisma 스키마 작성 (02_erd.md 기준)
-- [ ] 마이그레이션 실행 (테이블 생성)
-- [ ] 회원 API 구현
-- [ ] JWT 인증 구현
+- [x] Prisma 스키마 작성 (02_erd.md 기준)
+- [x] 마이그레이션 실행 (테이블 생성)
+- [x] Express 서버 구축
+- [x] 회원 API 구현
+- [x] JWT 인증 구현
 
 **Frontend**
 
