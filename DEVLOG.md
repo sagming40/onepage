@@ -19,16 +19,16 @@
 
 | 항목 | 내용 |
 |---|---|
-| **현재 위치** | M1 진행 중 — Backend 인증 파트 완료, Diary CRUD 착수 전 |
-| **완료** | Prisma 스키마(8모델) 및 마이그레이션 · Express 서버 뼈대 · 회원가입/로그인 API · JWT 인증 미들웨어 |
-| **다음 작업** | 일기 CRUD 4종 (작성/조회/수정/삭제) — `feature/diary-crud` 브랜치에서 진행 |
+| **현재 위치** | M1 진행 중 — Backend 인증 + Diary CRUD 완료, Frontend 착수 전 |
+| **완료** | Prisma 스키마(8모델) 및 마이그레이션 · Express 서버 뼈대 · 회원가입/로그인 API · JWT 인증 미들웨어 · 일기 CRUD 4종(작성/조회/수정/삭제) |
+| **다음 작업** | Frontend 초기 구조 (React 프로젝트 구성) — `feature/diary-api` PR 병합 후 새 브랜치에서 진행 |
 
 **환경 요약**
 
 - Node.js v24.15.0 / npm 11.12.1 / MariaDB 12.2.2
 - DB · `onepage`, 테이블 9개 (users, diaries, photos, musics, tags, diary_tags, ai_reports, time_capsules, _prisma_migrations)
 - Prisma **6.x 고정** · TypeScript **5.9.2 고정** (사유는 결정 기록 참조)
-- Repository · `sagming40/onepage` (Public) · `main`에 PR #1 병합 완료, `feature/express-setup` 브랜치 삭제
+- Repository · `sagming40/onepage` (Public) · `main`에 PR #1, #2 병합 완료, `feature/express-setup`/`feature/diary-api` 브랜치 삭제
 - 데스크탑/노트북 듀얼 환경 — 각자 로컬 MariaDB 사용, 작업 전후 반드시 `git pull`/`push`
 
 <details>
@@ -148,7 +148,7 @@
 
 - Express 서버 뼈대(`app.ts`, `server.ts`) 작성
 
-## 2026-08-03 (오전 1~3) — M1 진행: Express 서버 뼈대 구축
+## 2026-08-03 (오전 1 ~ 3) — M1 진행: Express 서버 뼈대 구축
 
 **관련 마일스톤** · M1 (MVP 개발) → 진행 중
 
@@ -170,7 +170,7 @@
 
 - 회원가입/로그인 API 구현
 
-## 2026-08-03 (오후 2~5) — M1 완료: 회원 인증(회원가입/로그인/JWT) 구현 및 PR #1 병합
+## 2026-08-03 (오후 2 ~ 5) — M1 완료: 회원 인증(회원가입/로그인/JWT) 구현 및 PR #1 병합
 
 **관련 마일스톤** · M1 (MVP 개발) → 진행 중 (Backend 인증 파트 완료)
 
@@ -197,6 +197,36 @@
 
 - `feature/diary-crud` 브랜치 생성
 - 일기 작성/조회/수정/삭제 API 구현
+
+## 2026-08-03 ~ 2026-08-04(오후 7 ~ 자정 이후) — M1 진행: 일기 CRUD 4종 구현 및 검증
+
+**관련 마일스톤** · M1 (MVP 개발) → 진행 중 (Diary CRUD 완료)
+
+**한 일**
+
+- Repository/Service/Controller/Routes 4계층 분리 적용 (`diary.repository.ts`, `diary.service.ts`, `diary.controller.ts`, `diary.routes.ts`)
+- Soft Delete 조회 조건(`deletedAt: null`)을 상수로 분리해 모든 조회 함수에 일관 적용
+- 목록 조회에 `select`로 필요한 컬럼만 조회하도록 최적화 (본문 미포함)
+- 상세/수정/삭제 시 "존재하지 않음"과 "내 것이 아님"을 동일한 404(`DIARY_NOT_FOUND`)로 응답하도록 구현 (사유는 결정 기록 참조)
+- `feature/diary-api` 브랜치에서 진행, `app.ts`에 `/api/diaries` 라우터 연결
+- Invoke-RestMethod로 CRUD 4종 + Soft Delete 후 목록 미노출 + 삭제된 일기 상세조회 시 404 확인까지 실전 검증 완료
+- PR #2 생성 → main 병합
+
+**막혔던 점 / 트러블슈팅**
+
+- **자동완성 오작동으로 무관한 import 재발** — `diary.repository.ts`에 `import { it } from "node:test"`, `diary.service.ts`에 `import { error, table } from "console"`가 각각 끼어듦. auth.controller.ts 때와 동일한 패턴 → 지금부터 파일 작성 후 import 줄부터 먼저 훑어보는 습관 들이기로 함
+- **`exactOptionalPropertyTypes` 관련 타입 에러 반복 발생** — Repository/Service 사이에 optional 필드(`location?`, `startDate?`, `year?` 등)의 "칸 자체가 없음"과 "칸은 있는데 undefined"를 TS가 엄격히 구분함. 조건부 스프레드(`...(value !== undefined ? { value } : {})`) 패턴으로 매번 해결
+  - 교훈: 이 프로젝트 tsconfig가 `exactOptionalPropertyTypes: true`이므로, Service→Repository처럼 계층 간 optional 필드를 넘길 땐 항상 이 패턴을 우선 고려할 것
+- **`Math.cell` 오타** — `Math.ceil`을 잘못 타이핑. 단순 오타였지만 `tsc`가 정확히 잡아냄
+- **`npm run dev` 실행 시 `Missing script: "dev"` 에러** — `package.json`에 `dev` 스크립트가 애초에 등록되어 있지 않았음. `"dev": "ts-node-dev --respawn --transpile-only src/server.ts"` 추가로 해결
+  - 교훈: 새 환경(데스크탑)에서 처음 서버를 켤 때는 `package.json`의 `scripts` 목록부터 확인할 것
+- **PowerShell `Invoke-RestMethod`의 `-Body`로 한글 전송 시 DB에 물음표(`??`)로 저장됨** — MariaDB 쪽 `character_set_*`은 전부 `utf8mb4`로 정상이었으나, PowerShell이 문자열을 HTTP 바디로 변환하는 과정에서 시스템 기본 코드페이지로 인코딩해 실제로 깨진 바이트가 전송됨. `[System.Text.Encoding]::UTF8.GetBytes($json)`로 명시적으로 UTF-8 바이트를 만들어 전송하고 `-ContentType "application/json; charset=utf-8"`을 지정해 해결
+  - 교훈: 클라이언트 도구(PowerShell)와 서버(Express/MariaDB) 양쪽 다 UTF-8이어도, 그 사이를 잇는 전송 단계에서 깨질 수 있다. 인코딩 문제는 항상 "어느 구간"에서 깨졌는지 구간별로 좁혀가며 확인해야 함
+- **HeidiSQL에 찍힌 시간이 실제 한국 시각과 9시간 차이남** — 버그 아님. Prisma `DateTime`은 UTC로 저장하는 게 표준이라, HeidiSQL이 변환 없이 UTC 그대로 표시한 것. 화면 표시(Frontend)에서 KST 변환은 추후 처리 예정
+
+**다음에 할 일**
+
+- Frontend 초기 구조 착수 (React 프로젝트 구성)
 
 ## 결정 기록
 
@@ -281,6 +311,17 @@ Prisma 6.x 고정 결정과 동일한 논리로, 학습 단계에서 최신 버�
 
 typescript@5.9.2, @types/node@24로 다운그레이드. tsconfig.json도 CommonJS 기준으로
 `module: "commonjs"`, `esModuleInterop: true`, `verbatimModuleSyntax: false`로 정리.
+
+</details>
+
+<details>
+<summary><b>2026-08-03 · 일기 조회/수정/삭제 실패 시 403 대신 404로 통일한 이유</b></summary>
+
+당초 API 명세서(HTTP 상태 코드 섹션)엔 403(권한 없음)과 404(데이터 없음)이 별개로 정의되어 있었으나, 실제 구현 시 403을 쓰지 않고 404로 통일하기로 결정함.
+
+**판단 근거** · 남의 일기 ID로 조회를 시도했을 때 403을 반환하면 "그 ID의 일기가 존재는 한다"는 사실 자체가 노출된다. 로그인 API에서 "이메일 없음"과 "비밀번호 틀림"을 동일한 에러로 통일했던 것과 같은 논리 — 일기는 사생활 정보이므로 존재 여부 자체를 감추는 것이 맞다고 판단.
+
+`diary.service.ts`의 `getDiaryDetail`에서 "존재하지 않음"과 "존재하지만 내 것이 아님" 두 경우 모두 동일한 에러 메시지·코드(`DIARY_NOT_FOUND`)로 던지도록 구현함.
 
 </details>
 

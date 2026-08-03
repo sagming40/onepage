@@ -1,10 +1,11 @@
 # 📄 API 명세서 (API Specification)
 
 > **프로젝트명** : One Page
-> **문서 버전** : v1.1
+> **문서 버전** : v1.2
 > **작성일** : 2026-08-02
 > **변경 이력**
 > - v1.1 — 헤더 계층 정리, 엔드포인트 요약표 추가, JSON 예시 포맷 정리
+> - v1.2 — 일기 조회/수정/삭제 실패 시 403 대신 404 반환하도록 정정 (사유는 DEVLOG 결정 기록 참조)
 
 ## 1. 기본 정보
 
@@ -226,6 +227,16 @@ Authorization: Bearer {access_token}
 }
 ```
 
+**Error Response** · 존재하지 않거나 본인 소유가 아닌 경우 동일하게 404 처리 (사유는 DEVLOG 결정 기록 참조)
+
+```json
+{
+  "success": false,
+  "message": "일기를 찾을 수 없습니다.",
+  "errorCode": "DIARY_NOT_FOUND"
+}
+```
+
 ### PUT /diaries/{id} — 일기 수정 🔒
 
 **Request**
@@ -237,9 +248,13 @@ Authorization: Bearer {access_token}
 }
 ```
 
+**Error Response** · 404 처리는 상세 조회와 동일 (`DIARY_NOT_FOUND`)
+
 ### DELETE /diaries/{id} — 일기 삭제 🔒
 
 Soft Delete로 처리한다.
+
+**Error Response** · 404 처리는 상세 조회와 동일 (`DIARY_NOT_FOUND`)
 
 ## 6. 사진 API
 
