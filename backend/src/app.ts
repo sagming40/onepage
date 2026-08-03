@@ -1,5 +1,7 @@
 import express from "express";
 import cors from "cors";
+import authRoutes from "./routes/auth.routes";
+import userRoutes from "./routes/user.routes";
 
 // express() = 매뉴얼을 적을 빈 노트르 하나 꺼내는 것.
 // 이 노트에 "이런 요청이 오면 이렇게 처리해" 규칙을 하나씩 적어나간다.
@@ -28,6 +30,12 @@ app.get("/api/health", (req, res) => {
   });
 });
 
+// ── 회원 라우터 연결 ──
+// API 명세서 기준 Base URL이 /api이므로, 그 아래에 /auth 접두사로 연결한다.
+// 결과적으로 실제 주소는 /api/auth/signup 이 된다.
+app.use("/api/auth", authRoutes);
+app.use("/api/users", userRoutes);
+
 // ── 404 처리 ──
 // 위의 모든 규칙에 걸리지 않고 여기까지 도달했다는 건, 존재하지 않는 주소로 도착한 것.
 // 반드시 라우터들보다 아래에 위치해야 한다 (매뉴얼은 위에서부터 순서대로 읽힌다).
@@ -53,8 +61,8 @@ app.use(
     console.error(err.stack); // 개발 중엔 원인 파악용으로 콘솔에 전체 출력
     res.status(500).json({
       success: false,
-      mesaage: "서버 내부 오류가 발생했습니다.",
-      errorCode: "INTERVAL_SERVER_ERROR",  
+      message: "서버 내부 오류가 발생했습니다.",
+      errorCode: "INTERNAL_SERVER_ERROR",  
     });
   }  
 );
