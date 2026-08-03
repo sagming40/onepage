@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import authRoutes from "./routes/auth.routes";
 import userRoutes from "./routes/user.routes";
+import diaryRoutes from "./routes/diary.routes";
 
 // express() = 매뉴얼을 적을 빈 노트르 하나 꺼내는 것.
 // 이 노트에 "이런 요청이 오면 이렇게 처리해" 규칙을 하나씩 적어나간다.
@@ -35,6 +36,7 @@ app.get("/api/health", (req, res) => {
 // 결과적으로 실제 주소는 /api/auth/signup 이 된다.
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/diaries", diaryRoutes);
 
 // ── 404 처리 ──
 // 위의 모든 규칙에 걸리지 않고 여기까지 도달했다는 건, 존재하지 않는 주소로 도착한 것.
