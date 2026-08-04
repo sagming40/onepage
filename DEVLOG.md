@@ -19,16 +19,16 @@
 
 | 항목 | 내용 |
 |---|---|
-| **현재 위치** | M1 진행 중 — Backend 인증 + Diary CRUD 완료, Frontend 착수 전 |
-| **완료** | Prisma 스키마(8모델) 및 마이그레이션 · Express 서버 뼈대 · 회원가입/로그인 API · JWT 인증 미들웨어 · 일기 CRUD 4종(작성/조회/수정/삭제) |
-| **다음 작업** | Frontend 초기 구조 (React 프로젝트 구성) — `feature/diary-api` PR 병합 후 새 브랜치에서 진행 |
+| **현재 위치** | M1 진행 중 — Backend 전부 완료, Frontend는 "React 프로젝트 구성"만 완료 |
+| **완료** | Prisma 스키마 및 마이그레이션 · Express 서버 · 회원가입/로그인 API · JWT 인증 · 일기 CRUD 4종 · React+Vite+Tailwind 스캐폴딩 · axios 인스턴스 · 라우터(로그인/회원가입/메인 껍데기) |
+| **다음 작업** | 로그인/회원가입/메인 화면 실제 UI 구현 (`04_ui-ux-design.md` UI-001~003 기준) — M1 Frontend 나머지 3항목 |
 
 **환경 요약**
 
 - Node.js v24.15.0 / npm 11.12.1 / MariaDB 12.2.2
-- DB · `onepage`, 테이블 9개 (users, diaries, photos, musics, tags, diary_tags, ai_reports, time_capsules, _prisma_migrations)
-- Prisma **6.x 고정** · TypeScript **5.9.2 고정** (사유는 결정 기록 참조)
-- Repository · `sagming40/onepage` (Public) · `main`에 PR #1, #2 병합 완료, `feature/express-setup`/`feature/diary-api` 브랜치 삭제
+- DB · `onepage`, 테이블 9개
+- Prisma **6.x 고정** · TypeScript **5.9.2 고정** (Backend) · Vite v8.x / React 19 / Tailwind CSS v4 (Frontend)
+- Repository · `sagming40/onepage` (Public) · `main`에 PR #1, #2, #3 병합 완료, 관련 feature 브랜치 전부 삭제
 - 데스크탑/노트북 듀얼 환경 — 각자 로컬 MariaDB 사용, 작업 전후 반드시 `git pull`/`push`
 
 <details>
@@ -228,6 +228,36 @@
 
 - Frontend 초기 구조 착수 (React 프로젝트 구성)
 
+## 2026-08-04(오전 10 ~ 오후 1) — M1 진행: Frontend 초기 구조(React 프로젝트 구성) 완료 및 PR #3 병합
+
+**관련 마일스톤** · M1 (MVP 개발) → 진행 중 (Frontend "React 프로젝트 구성" 완료, 화면 3종은 다음 세션)
+
+**한 일**
+
+- Vite + React 19 + TypeScript 프로젝트 스캐폴딩 (ESLint 선택, Tailwind CSS v4는 별도 설치)
+- Tailwind CSS v4 설정 — `@tailwindcss/vite` 플러그인 방식, `04_ui-ux-design.md` 컬러 가이드를 `@theme`에 토큰으로 등록
+- react-router / axios / TanStack Query 설치, `05_dev-guide.md` 기준 `src` 하위 폴더 구조 생성 (빈 폴더는 `.gitkeep`으로 추적)
+- 공통 응답 타입(`ApiSuccess`/`ApiFailure`, 판별 유니온) 및 `User` 타입 정의
+- axios 인스턴스(`api/client.ts`) 구현 — 요청 인터셉터(accessToken 자동 첨부), 응답 인터셉터(401 시 토큰 삭제 후 로그인 이동)
+- 로그인/회원가입/메인 페이지는 라우팅 검증용 **껍데기**만 구현 (실제 UI는 다음 세션), 라우터 연결(404 폴백 포함)
+- 헬스체크 호출로 백엔드 연동 검증
+- `feature/frontend-setup` 브랜치에서 진행 → PR #3 생성 → `main` 병합, 브랜치 정리
+
+**막혔던 점 / 트러블슈팅**
+
+- **Vite `create-vite` 실행 시 `frontend` 디렉터리가 비어있지 않다는 경고** — M0 단계에서 빈 폴더 추적용으로 넣어둔 `.gitkeep` 하나만 있던 것으로 확인 후 `Remove existing files and continue`로 진행
+- **Tailwind CSS v4 설치 방식이 v3와 완전히 다름** — `tailwind.config.js` + `content` 배열 방식(v3)은 v4에서 조용히 아무 효과도 없음. `@tailwindcss/vite` 플러그인 + `index.css`의 `@import "tailwindcss"` + `@theme` 블록 방식(v4)으로 전환
+  - 교훈: 에러 없이 조용히 안 먹는 유형이 제일 늦게 발견됨. 최신 버전일수록 학습 자료가 구버전 문법을 설명하고 있을 가능성을 의심할 것
+- **Tailwind가 안 먹는 것처럼 보였던 문제** — 실제 원인은 Tailwind가 아니라, `App.css`를 삭제한 뒤에도 `App.tsx`가 그 안의 커스텀 클래스(`hero`, `counter` 등)를 그대로 참조하고 있었던 것. 변수 두 개(App.css 삭제 + Tailwind 설정)가 동시에 걸려 원인 판별이 안 됐음 → `App.tsx`를 최소 재현 코드로 교체해 Tailwind 자체는 정상 작동함을 확인
+  - 교훈: 여러 변수가 동시에 바뀐 상태에서 증상이 나오면, 최소 재현(minimal reproduction)으로 하나씩 분리해서 검증할 것
+- **자동완성 오작동으로 무관한 import 재발** — `client.ts`에 `import { config } from "process"`가 끼어듦 (Backend 세션에서도 동일 패턴 2회 발생, 이번이 3번째)
+  - 교훈: 일회성 실수가 아니라 반복 패턴. 흔한 변수명(`config`, `error`, `data` 등) 타이핑 시 자동완성 팝업의 import 제안을 항상 한 번 더 확인할 것
+- VS Code CSS 언어 서비스가 `@theme`를 표준 CSS 문법으로 인식 못 해 `Unknown at rule` 경고 표시 — 실제 빌드에는 영향 없는 에디터 표시 문제로 확인 (Tailwind CSS IntelliSense 확장 설치로 해소 가능, 추후 진행)
+
+**다음에 할 일**
+
+- 로그인/회원가입/메인 화면 실제 UI 구현 (`04_ui-ux-design.md` UI-001~003 목업 기준) — M1 Frontend 나머지 3항목
+
 ## 결정 기록
 
 > 왜 그렇게 했는지에 대한 기록. 나중에 "이거 왜 이렇게 했더라?" 할 때 근거가 되는 곳.
@@ -322,6 +352,15 @@ typescript@5.9.2, @types/node@24로 다운그레이드. tsconfig.json도 CommonJ
 **판단 근거** · 남의 일기 ID로 조회를 시도했을 때 403을 반환하면 "그 ID의 일기가 존재는 한다"는 사실 자체가 노출된다. 로그인 API에서 "이메일 없음"과 "비밀번호 틀림"을 동일한 에러로 통일했던 것과 같은 논리 — 일기는 사생활 정보이므로 존재 여부 자체를 감추는 것이 맞다고 판단.
 
 `diary.service.ts`의 `getDiaryDetail`에서 "존재하지 않음"과 "존재하지만 내 것이 아님" 두 경우 모두 동일한 에러 메시지·코드(`DIARY_NOT_FOUND`)로 던지도록 구현함.
+
+</details>
+
+<details>
+<summary><b>2026-08-04 · 토큰 저장 위치 — localStorage (M1) → M5에서 재검토</b></summary>
+
+`localStorage`는 XSS 공격에 노출될 수 있어 완벽한 방식은 아니지만, httpOnly 쿠키 방식은 refresh 엔드포인트 구현과 CORS `credentials` 설정이 추가로 필요해 MVP 단계에서 배울 게 배로 늘어난다.
+
+**판단** · 학습 곡선을 고려해 M1은 `localStorage`로 진행하고, M5 "Token 관리 개선" 항목에서 쿠키 방식으로 전환하는 것으로 결정.
 
 </details>
 

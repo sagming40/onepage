@@ -9,6 +9,7 @@
 > - v2.3 — M0 완료 처리
 > - v2.4 — M1 Backend 인증 파트 완료 처리 (Express 서버/Prisma 마이그레이션/회원 API/JWT)
 > - v2.5 — M1 Diary CRUD 완료 처리
+> - v2.6 — M1 Frontend "React 프로젝트 구성" 완료 처리
 
 ## 1. 개발 단계
 
@@ -31,7 +32,7 @@ Optimization
 | 단계 | 목표 | 상태 |
 |---|---|---|
 | [Milestone 0](#milestone-0--프로젝트-준비-및-설계) | 프로젝트 준비 및 설계 | ✅ 완료 |
-| [Milestone 1](#milestone-1--mvp-개발) | MVP 개발 | 🔄 진행 중 |
+| [Milestone 1](#milestone-1--mvp-개발) | MVP 개발 | 🔄 진행중 |
 | [Milestone 2](#milestone-2--핵심-기능-확장) | 핵심 기능 확장 | ⏳ 예정 |
 | [Milestone 3](#milestone-3--ai-기능-개발) | AI 기능 개발 | ⏳ 예정 |
 | [Milestone 4](#milestone-4--배포-환경-구축) | 배포 환경 구축 | ⏳ 예정 |
@@ -88,7 +89,8 @@ Optimization
 - [x] 프로젝트 문서 작성 완료
 - [x] Backend 초기 구조 생성
 - [x] Database 설계 완료 (문서) · `onepage` DB 생성 완료
-- [ ] Frontend 초기 구조 생성 → M1에서 진행
+
+> Frontend 초기 구조 생성은 M0 범위에서 제외하고 M1로 이관함 (M1 작업 목록 참고)
 
 ## Milestone 1 — MVP 개발
 
@@ -108,7 +110,7 @@ Optimization
 
 **Frontend**
 
-- [ ] React 프로젝트 구성
+- [x] React 프로젝트 구성
 - [ ] 로그인 화면
 - [ ] 회원가입 화면
 - [ ] 메인 화면
