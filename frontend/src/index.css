@@ -1,0 +1,26 @@
+/* v3의 @tailwind base/components/utilities 3줄이 이 한 줄로 통합됨 
+   v4에서 이전 3줄짜리 문법을 사용하면 에러가 난다. */
+@import "tailwindcss";
+
+/* @theme = 디자인 토큰 등록소. 
+   여기에 --color-XXX 로 등록하면 Tailwind가 자동으로
+   bg-XXX / text-XXX / border-XXX 클래스를 만들어준다.
+   v3의 tailwind.config.js theme.extend 자리를 이게 대신함. */
+@theme {
+  --color-primary: #5c7cfa;
+  --color-surface: #ffffff;
+  --color-surface-dark: #1e1e1e;
+  --color-ink: #212529;
+  --color-ink-dark: #f1f3f5;
+  --color-line: #dee2e6;
+  --color-line-dark: #343a40;
+  --color-success: #40c057;
+  --color-warning: #fab005;
+  --color-danger: #fa5252;
+}  
+
+/* 04_ui_ux_design.md 기준 background 색
+   다크모드는 추후 M5에서 제대로 구현 예정 ─ 현재는 라이트 모드만 */
+body {
+  background-color: #f8f9fa;
+}   
