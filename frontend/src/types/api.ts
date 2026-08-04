@@ -15,3 +15,8 @@ export interface ApiFailure {
   message: string;
   errorCode: string;  
 }
+
+// success 필드 값(true/false)만 보고 TS가 자동으로
+// "이건 ApiSuccess" / "이건 ApiFailure"를 구분해준다.
+// 봉투에 찍힌 도장(success)만 보고 내용물 타입을 알아챈다.  
+export type ApiResponse<T> = ApiSuccess<T> | ApiFailure;
