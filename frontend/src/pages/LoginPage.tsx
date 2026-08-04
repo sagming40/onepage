@@ -4,6 +4,7 @@ import AuthLayout from "../layouts/AuthLayout";
 import Input from "../components/Input";
 import Button from "../components/Button";
 import { login } from "../api/authApi";
+import { getErrorMessage } from "../utils/apiError";
 
 export default function LoginPage() {
   // 입력창 값 두 개를 각각의 상태로 따로 관리
@@ -47,10 +48,12 @@ export default function LoginPage() {
         // result.errorCode 대신 result.message를 그대로 보여준다.
         setErrorMessage(result.message);
       }
-    } catch {
-      // 네트워크 자체가 끊겼거나 서버가 아예 뜨지 않은 경우 등,
-      // 위 result.success 분기로도 잡지 못하는 "진짜 예외" 상황.
-      setErrorMessage("로그인 중 오류가 발생했습니다.");  
+    } catch (error) {
+      // 네트워크 자체가 끊겼거나 서버가 아예 뜨지 않은 경우 등, — X
+      // 위 result.success 분기로도 잡지 못하는 "진짜 예외" 상황. — X
+      // 🛠️ 수정 — 서버가 준 실제 실패 메시지(예: "이메일 또는 비밀번호가 일치하지 않습니다")를
+      // 우선 사용하고, 그마저도 못 꺼내면(네트워크 끊김 등) fallback 문구를 쓴다.
+      setErrorMessage(getErrorMessage(error, "로그인 중 오류가 발생했습니다."));  
     } finally {
       // 성공하든 실패하든 로딩 스위치는 반드시 꺼줘야 한다.
       // finally = try/catch 어느 쪽으로 빠지든 무조건 실행되는 구간.
