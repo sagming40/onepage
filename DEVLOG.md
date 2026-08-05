@@ -19,16 +19,16 @@
 
 | 항목 | 내용 |
 |---|---|
-| **현재 위치** | M1 진행 중 — Backend 전부 완료, Frontend는 "React 프로젝트 구성"만 완료 |
-| **완료** | Prisma 스키마 및 마이그레이션 · Express 서버 · 회원가입/로그인 API · JWT 인증 · 일기 CRUD 4종 · React+Vite+Tailwind 스캐폴딩 · axios 인스턴스 · 라우터(로그인/회원가입/메인 껍데기) |
-| **다음 작업** | 로그인/회원가입/메인 화면 실제 UI 구현 (`04_ui-ux-design.md` UI-001~003 기준) — M1 Frontend 나머지 3항목 |
+| **현재 위치** | M1 진행 중 — Backend 전부 완료, Frontend는 로그인/회원가입/메인 3화면까지 완료 |
+| **완료** | Prisma 스키마 및 마이그레이션 · Express 서버 · 회원가입/로그인 API · JWT 인증 · 일기 CRUD 4종 · React+Vite+Tailwind 스캐폴딩 · axios 인스턴스 · 로그인/회원가입/메인 화면(UI-001~003) · 인증 가드(ProtectedRoute) |
+| **다음 작업** | 일기 작성 화면(UI-004), 일기 상세 화면(UI-005) 구현 — M1 Frontend 마지막 2항목, 완료 시 M1 전체 종료 |
 
 **환경 요약**
 
 - Node.js v24.15.0 / npm 11.12.1 / MariaDB 12.2.2
 - DB · `onepage`, 테이블 9개
 - Prisma **6.x 고정** · TypeScript **5.9.2 고정** (Backend) · Vite v8.x / React 19 / Tailwind CSS v4 (Frontend)
-- Repository · `sagming40/onepage` (Public) · `main`에 PR #1, #2, #3 병합 완료, 관련 feature 브랜치 전부 삭제
+- Repository · `sagming40/onepage` (Public) · `main`에 PR #1, #2, #3, #4 병합 완료, 관련 feature 브랜치 전부 삭제
 - 데스크탑/노트북 듀얼 환경 — 각자 로컬 MariaDB 사용, 작업 전후 반드시 `git pull`/`push`
 
 <details>
@@ -258,6 +258,36 @@
 
 - 로그인/회원가입/메인 화면 실제 UI 구현 (`04_ui-ux-design.md` UI-001~003 목업 기준) — M1 Frontend 나머지 3항목
 
+## 2026-08-04 ~ 2026-08-05(8/4 오후 7 ~ 8/5 오후 2) — M1 진행: 로그인/회원가입/메인 화면 구현 및 PR #4 병합
+
+**관련 마일스톤** · M1 (MVP 개발) → 진행 중 (Frontend 로그인/회원가입/메인 3화면 완료, 일기 작성/상세 2화면은 다음 세션)
+
+**한 일**
+
+- 공통 타입/상수 정의 — `Diary`/`DiaryListItem`/`DiaryListResult` 타입, `Emotion` 7종 및 이모지 매핑(`constants/emotion.ts`), `ApiResponse` 판별 유니온
+- 인증/일기 API 함수 — `authApi`(signup/login), `diaryApi`(getDiaries)
+- 공통 컴포넌트 — `Input`, `Button`, `AuthLayout`
+- 로그인 화면(UI-001), 회원가입 화면(UI-002), 메인 화면(UI-003) 구현
+- 인증 가드(`ProtectedRoute`) 구현 및 `App.tsx` 라우터 연결
+- `feature/frontend-ui` 브랜치에서 진행 → PR #4 생성 → `main` 병합, 브랜치 정리
+- E2E 전체 흐름 실전 검증 — 회원가입 → DB 저장 확인(HeidiSQL) → 로그인 → 메인 이동, 중복 이메일/닉네임 검증, 미인증 상태 `/` 직접 접근 시 리다이렉트까지 확인
+
+**막혔던 점 / 트러블슈팅**
+
+- **`react-router-dom` 모듈을 찾을 수 없음** — react-router v7부터 `react-router-dom`이 폐지되고 `react-router` 단일 패키지로 통합됨. DEVLOG에 "react-router 설치"라고 정확히 적혀 있었는데도 `-dom` 접미사를 습관적으로 붙여 발생한 실수 → import 경로를 `react-router`로 통일
+- **로그인 실패 시 에러 메시지가 화면에 나타났다가 즉시 사라짐(체감 0.01초)** — 원인은 두 가지가 겹쳐 있었음
+  1. `client.ts` 응답 인터셉터가 모든 401을 "세션 만료"로 간주해 `window.location.href`로 강제 새로고침 처리. 로그인 실패(자격 증명 오류)도 401로 오기 때문에, 로그인 페이지에서 로그인 페이지로 강제 새로고침되며 방금 세팅된 에러 상태가 초기화됨
+  2. axios가 4xx 응답을 자동으로 예외로 던지면서, `if (result.success) {...} else {...}` 중 `else` 분기가 애초에 도달 불가능한 죽은 코드였음 — 서버가 준 실제 실패 메시지 대신 `catch` 블록의 하드코딩된 fallback 문구만 노출됨
+  - 해결 — 인터셉터에 `/auth/login`, `/auth/signup` 요청은 강제 로그아웃 대상에서 제외하는 예외 처리 추가. `utils/apiError.ts`의 `getErrorMessage`로 axios 예외 내부에 담긴 서버의 실제 `message`를 우선 사용하도록 수정
+  - 교훈: 성공 케이스만 검증하고 넘어갔으면 두 문제 다 놓쳤을 것. 방어 로직은 반드시 실패 케이스를 의도적으로 터뜨려서 검증할 것 (M1 인증 세션 교훈 재확인)
+- **`verbatimModuleSyntax` 위반** — 타입(`DiaryListItem`, `Emotion`)을 일반 `import`로 가져와 "타입은 `import type`으로 가져와야 한다"는 컴파일 에러 발생 → `import type` 구문으로 수정
+- **`SignupPage.tsx` 작성 중 함수 몸통이 중간에 조기 종료** — `handleSubmit` 함수 안에서 의도치 않게 `}`로 닫아버려, 이후 로직(비밀번호 확인, API 호출, JSX)이 전부 함수 밖으로 밀려나며 20여 개의 연쇄 에러 발생. 원인은 하나(괄호 위치)였고 나머지는 전부 파생 증상이었음
+
+**다음에 할 일**
+
+- 일기 작성 화면(UI-004), 일기 상세 화면(UI-005) 구현 — M1 Frontend 마지막 2항목, 완료 시 M1 전체 종료
+- M1 마무리 문서 정리 — `03_api-spec.md`(로그인/목록조회 응답 형식), `04_ui-ux-design.md`(감정 이모지 7종), `05_dev-guide.md`(`constants/` 폴더)
+
 ## 결정 기록
 
 > 왜 그렇게 했는지에 대한 기록. 나중에 "이거 왜 이렇게 했더라?" 할 때 근거가 되는 곳.
@@ -361,6 +391,32 @@ typescript@5.9.2, @types/node@24로 다운그레이드. tsconfig.json도 CommonJ
 `localStorage`는 XSS 공격에 노출될 수 있어 완벽한 방식은 아니지만, httpOnly 쿠키 방식은 refresh 엔드포인트 구현과 CORS `credentials` 설정이 추가로 필요해 MVP 단계에서 배울 게 배로 늘어난다.
 
 **판단** · 학습 곡선을 고려해 M1은 `localStorage`로 진행하고, M5 "Token 관리 개선" 항목에서 쿠키 방식으로 전환하는 것으로 결정.
+
+</details>
+
+<details>
+<summary><b>2026-08-05 · refreshToken을 M1 스코프에서 제외한 이유</b></summary>
+
+`03_api-spec.md` 원안엔 로그인 응답에 `accessToken`과 `refreshToken`이 함께 명시되어 있었으나, 실제 `auth.controller.ts` 구현은 `accessToken`만 발급하고 있었음. `POST /auth/logout`(refresh token 무효화) 엔드포인트도 존재하지 않음.
+
+**판단** · refresh token을 제대로 구현하려면 이중 토큰 발급, 저장 위치 결정(DB vs httpOnly 쿠키), accessToken 만료 시 자동 재발급 흐름(axios 인터셉터 401 재시도), 탈취 시 회전(rotation) 정책까지 함께 딸려온다. 지금은 JWT 기본 발급/검증 개념을 막 익힌 단계라, 여기에 refresh 로테이션 개념까지 얹으면 에러 발생 시 "JWT 개념 문제인지 refresh 설계 문제인지" 구분이 안 되어 디버깅 비용이 커진다. Prisma 6.x 고정과 동일한 논리.
+
+M1 완료 기준(회원가입→로그인→일기 CRUD)은 accessToken만으로 충족 가능하며, refreshToken 없이도 흐름이 막히는 지점이 없음.
+
+**결정** · M1은 accessToken 단일 발급으로 완주하고, refreshToken은 M2(타임캡슐 — 세션/만료 개념과 인접) 또는 그 이후 세션 관리 강화 시점에 도입한다. `03_api-spec.md`의 로그인 응답에서 `refreshToken` 필드를 제거하고 실제 구현(`success`/`message`/`data.accessToken`)에 맞춘다.
+
+</details>
+
+<details>
+<summary><b>2026-08-05 · M1 Frontend 범위를 3화면에서 5화면으로 확장한 이유</b></summary>
+
+ROADMAP의 M1 Frontend 작업 목록은 원래 로그인/회원가입/메인 3화면만 명시되어 있었으나, M1 완료 기준(`회원가입 → 로그인 → 일기 작성 → 작성한 일기 조회`)을 그대로 읽으면 일기 작성 화면과 일기 상세(조회) 화면이 실제로는 필요했음. 이 두 화면이 애초에 작업 목록에서 누락되어 있었던 것으로 판단.
+
+**판단** · "작성한 일기 조회"를 메인 화면의 목록 미리보기만으로 충족했다고 보기 어려움 — 카드를 눌러도 이동할 상세 화면이 없으면 조회라기보다 미리보기에 가깝다. 일기 작성(UI-004)과 상세(UI-005)는 세트로 봐야 완료 기준을 실제로 만족시킨다.
+
+다만 5화면을 한 세션·한 PR에 몰면 "인증 화면 묶음"과 "일기 화면 묶음"이라는 성격이 다른 작업이 섞여, 나중에 한쪽만 되돌리고 싶을 때 방해가 된다.
+
+**결정** · ROADMAP M1 Frontend 작업 목록에 일기 작성/상세 화면 2항목을 추가하고, 세션을 둘로 분할한다 (로그인/회원가입/메인 → 이번 세션 완료, 일기 작성/상세 → 다음 세션). M1 상위 상태(🔄)는 5항목이 모두 끝나야 ✅로 전환한다.
 
 </details>
 

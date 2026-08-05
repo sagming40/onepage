@@ -1,7 +1,7 @@
 # 📅 ROADMAP
 
 > **프로젝트명** : One Page
-> **문서 버전** : v2.4
+> **문서 버전** : v2.7
 > **변경 이력**
 > - v2.0 — Git 전략 / Commit Convention 항목을 [개발 가이드](./docs/05_dev-guide.md)로 이관
 > - v2.1 — 헤더 계층 정리
@@ -10,6 +10,7 @@
 > - v2.4 — M1 Backend 인증 파트 완료 처리 (Express 서버/Prisma 마이그레이션/회원 API/JWT)
 > - v2.5 — M1 Diary CRUD 완료 처리
 > - v2.6 — M1 Frontend "React 프로젝트 구성" 완료 처리
+> - v2.7 — M1 Frontend 로그인/회원가입/메인 화면 완료 처리, 완료 기준 재해석에 따라 일기 작성/상세 화면 항목 추가
 
 ## 1. 개발 단계
 
@@ -111,9 +112,11 @@ Optimization
 **Frontend**
 
 - [x] React 프로젝트 구성
-- [ ] 로그인 화면
-- [ ] 회원가입 화면
-- [ ] 메인 화면
+- [x] 로그인 화면
+- [x] 회원가입 화면
+- [x] 메인 화면
+- [ ] 일기 작성 화면
+- [ ] 일기 상세 화면
 
 **Diary**
 

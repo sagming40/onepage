@@ -1,12 +1,13 @@
 # 📄 개발 가이드 (Architecture & Development Guide)
 
 > **프로젝트명** : One Page
-> **문서 버전** : v2.1
+> **문서 버전** : v2.3
 > **작성일** : 2026-08-02
 > **변경 이력**
 > - v2.0 — 아키텍처 + 개발환경/폴더구조 통합
 > - v2.1 — 헤더 계층 정리
 > - v2.2 — DEVLOG 연동 (구조 트리 · 커밋 컨벤션 · M0 작업목록)
+> - v2.3 — 4.2 Front-end 구조에 constants/ 폴더 추가 (감정 코드 등 상수 데이터 관리)
 
 ## 1. 시스템 개요
 
@@ -148,6 +149,7 @@ frontend/
 │   ├── api/
 │   ├── assets/
 │   ├── components/
+│   ├── constants/
 │   ├── hooks/
 │   ├── layouts/
 │   ├── pages/
@@ -166,6 +168,7 @@ frontend/
 | api/ | Backend API 통신 관리 | `authApi.ts`, `diaryApi.ts`, `aiApi.ts` |
 | assets/ | 정적 파일 (이미지, 아이콘, 폰트) | — |
 | components/ | 재사용 가능한 UI 컴포넌트 | `Button`, `Modal`, `DiaryCard`, `EmotionPicker` |
+| constants/ | 고정된 상수 데이터 관리 | `emotion.ts` (감정 코드-이모지-라벨 매핑) |
 | hooks/ | Custom Hook (비즈니스 로직 분리) | `useAuth()`, `useDiary()`, `useUpload()` |
 | layouts/ | 공통 레이아웃 | `MainLayout`, `AuthLayout` |
 | pages/ | 페이지 단위 컴포넌트 | `LoginPage`, `HomePage`, `DiaryPage`, `ReportPage` |
