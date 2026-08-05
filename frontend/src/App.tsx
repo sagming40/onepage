@@ -2,6 +2,7 @@ import { Routes, Route } from "react-router";
 import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 // Routes/Route = 건물 안내판.
 // 백엔드의 app.use("/api/diaries", diaryRoutes)와 완전히 같은 발상이다.
@@ -9,7 +10,14 @@ import SignupPage from "./pages/SignupPage";
 export default function App() {
   return (
     <Routes>
-      <Route path="/" element={<HomePage />} />
+      <Route
+        path="/"
+        element={
+          <ProtectedRoute>
+            <HomePage />
+          </ProtectedRoute>
+        }
+      />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/signup" element={<SignupPage />} />
       {/* * = 위 어디에도 걸리지 않은 나머지 전부. 

@@ -32,7 +32,17 @@ client.interceptors.request.use((config) => {
 client.interceptors.response.use(
   (response) => response, // 정상 응답은 그냥 통과
   (error) => {
-    if (error.response?.status === 401) {
+    // 로그인/회원가입 요청은 애초에 토큰이 없는 요청이라,
+    // 401 Error가 발생해도 "세션 만료"가 아닌 "이메일/비밀번호가 틀렸다"는 정상적인 실패일 뿐이다.
+    // 따라서, 강제 로그아웃 대상에서 제외시킨다.
+    //
+    // 비유: 우체부가 "반송 도장(401)이 찍힌 편지가 원래 부쳤던 편지(=로그인 시도)였는지,
+    // 아니면 다른 사람의 이름으로 위조해서 보낸 편지(=만료된 토큰)였는지"를 구분하는 것과 같다.
+    const isAuthRequest = 
+      error.config?.url?.includes("/auth/login") ||
+      error.config?.url?.includes("/auth/signup");
+
+    if (error.response?.status === 401 && !isAuthRequest) {
       localStorage.removeItem("accessToken");
       window.location.href = "/login";  
     }
