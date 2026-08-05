@@ -42,7 +42,7 @@ export default function LoginPage() {
         // 우체부(client.ts)가 앞으로 모든 요청에 이 토큰을 자동으로
         // 붙여줄 수 있도록, 서랍(localStorage)에 넣어둔다.
         localStorage.setItem("accessToken", result.data.accessToken);
-        navigate("/"); // 메인 화면으로 이동.
+        navigate("/", { replace: true }); // 메인 화면으로 이동.
       } else {
         // success: false인 경우 → result는 ApiFailure로 좁혀져서
         // result.errorCode 대신 result.message를 그대로 보여준다.
