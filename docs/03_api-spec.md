@@ -1,12 +1,13 @@
 # 📄 API 명세서 (API Specification)
 
 > **프로젝트명** : One Page
-> **문서 버전** : v1.3
+> **문서 버전** : v1.4
 > **작성일** : 2026-08-02
 > **변경 이력**
 > - v1.1 — 헤더 계층 정리, 엔드포인트 요약표 추가, JSON 예시 포맷 정리
 > - v1.2 — 일기 조회/수정/삭제 실패 시 403 대신 404 반환하도록 정정 (사유는 DEVLOG 결정 기록 참조)
 > - v1.3 — 로그인 응답을 공통 포맷으로 수정, refreshToken 필드 삭제(M1 스코프 제외) / GET 일기 목록 응답을 실제 구현(items/total/page/totalPages)에 맞게 수정
+> - v1.4 — 일기 작성/상세 조회 응답을 실제 구현(공통 응답 포맷으로 감싸는 형태)에 맞게 수정
 
 ## 1. 기본 정보
 
@@ -186,8 +187,11 @@ Authorization: Bearer {access_token}
 
 ```json
 {
-  "id": 1,
-  "message": "일기 작성 완료"
+  "success": true,
+  "message": "일기 작성 완료",
+  "data": {
+    "id": 1
+  }
 }
 ```
 
@@ -230,11 +234,18 @@ Authorization: Bearer {access_token}
 
 ```json
 {
-  "id": 1,
-  "title": "새로운 시작",
-  "content": "오늘 React 공부를 했다.",
-  "emotion": "HAPPY",
-  "aiSummary": "새로운 것을 배우며 성장한 하루"
+  "success": true,
+  "message": "조회 성공",
+  "data": {
+    "id": 1,
+    "title": "새로운 시작",
+    "content": "오늘 React 공부를 했다.",
+    "emotion": "HAPPY",
+    "location": "인천",
+    "aiSummary": "새로운 것을 배우며 성장한 하루",
+    "createdAt": "2026-08-02",
+    "updatedAt": "2026-08-02"
+  }
 }
 ```
 

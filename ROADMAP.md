@@ -1,7 +1,7 @@
 # 📅 ROADMAP
 
 > **프로젝트명** : One Page
-> **문서 버전** : v2.7
+> **문서 버전** : v2.8
 > **변경 이력**
 > - v2.0 — Git 전략 / Commit Convention 항목을 [개발 가이드](./docs/05_dev-guide.md)로 이관
 > - v2.1 — 헤더 계층 정리
@@ -11,6 +11,7 @@
 > - v2.5 — M1 Diary CRUD 완료 처리
 > - v2.6 — M1 Frontend "React 프로젝트 구성" 완료 처리
 > - v2.7 — M1 Frontend 로그인/회원가입/메인 화면 완료 처리, 완료 기준 재해석에 따라 일기 작성/상세 화면 항목 추가
+> - v2.8 — M1 Frontend 일기 작성/상세 화면 완료 처리, M1 전체 완료
 
 ## 1. 개발 단계
 
@@ -33,7 +34,7 @@ Optimization
 | 단계 | 목표 | 상태 |
 |---|---|---|
 | [Milestone 0](#milestone-0--프로젝트-준비-및-설계) | 프로젝트 준비 및 설계 | ✅ 완료 |
-| [Milestone 1](#milestone-1--mvp-개발) | MVP 개발 | 🔄 진행중 |
+| [Milestone 1](#milestone-1--mvp-개발) | MVP 개발 | ✅ 완료 |
 | [Milestone 2](#milestone-2--핵심-기능-확장) | 핵심 기능 확장 | ⏳ 예정 |
 | [Milestone 3](#milestone-3--ai-기능-개발) | AI 기능 개발 | ⏳ 예정 |
 | [Milestone 4](#milestone-4--배포-환경-구축) | 배포 환경 구축 | ⏳ 예정 |
@@ -115,8 +116,8 @@ Optimization
 - [x] 로그인 화면
 - [x] 회원가입 화면
 - [x] 메인 화면
-- [ ] 일기 작성 화면
-- [ ] 일기 상세 화면
+- [x] 일기 작성 화면
+- [x] 일기 상세 화면
 
 **Diary**
 
