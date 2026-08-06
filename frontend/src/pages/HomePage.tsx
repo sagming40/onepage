@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { getDiaries } from "../api/diaryApi";
 import { EMOTIONS } from "../constants/emotion";
-import type { DiaryListItem, Emotion } from "../types/diary";
+import type { DiaryListItem } from "../types/diary";
 import { getErrorMessage } from "../utils/apiError";
 
 export default function HomePage() {
@@ -13,11 +13,6 @@ export default function HomePage() {
   const [diaries, setDiaries] = useState<DiaryListItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
-
-  // "일기 작성 화면"으로 넘어가기 전 단계로,
-  // 지금 화면에서 "어떤 감정을 눌렀는지"만 잠깐 기억해두는 용도
-  // UI-004 화면이 구현 되면 여기 값을 UI-004 화면에 넘겨주면 됨
-  const [selectedEmotion, setSelectedEmotion] = useState<Emotion | null>(null);
 
   // useEffect(효과) = "화면이 처음 나타난 직후, 딱 한 번 실행해라"라는 예약
   // 두 번째 인자로 빈 배열([])을 주면 "의존하는 값이 없다" = 최초 1회만 실행
@@ -80,27 +75,15 @@ export default function HomePage() {
             {EMOTIONS.map((emotion) => (
               <button
                 key={emotion.code}
-                onClick={() => setSelectedEmotion(emotion.code)}
-                className={`flex flex-col items-center gap-1 rounded-xl px-3 py-2 transition-colors ${
-                  selectedEmotion === emotion.code
-                    ? "bg-primary/10 ring-2 ring-primary"
-                    : "hover:bg-[#f1f3f5]"  
-                }`}
+                onClick={() => navigate(`/diaries/new?emotion=${emotion.code}`)}
+                className="flex flex-col items-center gap-1 rounded-xl px-3 py-2 
+                           transition-colors hover:bg-[#f1f3f5]"
               >
                 <span className="text-2xl">{emotion.emoji}</span>
                 <span className="text-xs text-ink">{emotion.label}</span>
               </button>  
             ))}
-          </div>
-
-          {/* 다음 세션(UI-004)에서 이 자리가 실제 "작성하러 가기" 버튼으로 바뀔 예정.
-              지금은 감정을 골랐다는 상태만 확인시켜주는 자리표시자 */}
-          {selectedEmotion && (
-            <p className="mt-4 text-sm text-primary">
-              {EMOTIONS.find((e) => e.code === selectedEmotion)?.label} 을(를) 선택했어요.
-              (일기 작성 화면은 다음 마일스톤에서 연결됩니다.)
-            </p>
-          )}        
+          </div>       
         </div>
 
         {/* 최근 작성한 일기 목록 */}
@@ -126,7 +109,9 @@ export default function HomePage() {
             {diaries.map((diary) => (
               <li
                 key={diary.id}
-                className="flex items-center gap-3 rounded-lg border border-line p-3"
+                onClick={() => navigate(`/diaries/${diary.id}`)}
+                className="flex cursor-pointer items-center gap-3 rounded-lg border border-line p-3
+                           transition-colors hover:bg-[#f1f3f5]"
               >
                 <span className="text-xl">
                   {EMOTIONS.find((e) => e.code === diary.emotion)?.emoji}
@@ -135,7 +120,7 @@ export default function HomePage() {
                   {/* title이 null일 수 있으므로(무제목 일기), 대체 문구를 준비 */}
                   {diary.title ?? "제목 없음"}
                 </span>
-                <span className="text-xs text-line">
+                <span className="text-xs text-ink/60">
                   {/* ISO 문자열을 그대로 보여주면 "2026-08-05T09:12:33.000Z"처럼
                       길고 이상하게 나온다. Date로 한 번 변환하여 날짜만 뽑아낸다. */}
                   {new Date(diary.createdAt).toLocaleDateString("ko-KR")}    

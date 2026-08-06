@@ -39,3 +39,20 @@ export interface DiaryListResult {
   page: number;
   totalPages: number;  
 }
+
+// 일기를 만들 때 서버로 "보내는" 방식
+// 위쪽 Diary/DiaryListItem은 전부 서버가 "주는" 방식이었지만, 이건 반대 방향 이다.
+// 비유: Diary/DiaryListItem이 '배송받은 물건 목록'이라면, 여긴 '주문서 양식'
+//
+// ⚠️ title/location에 ?(옵셔널)를 쓰지 않고 | null로 간 이유:
+// tsconfig의 exactOptionalPropertyTypes가 켜져 있으면
+// "칸이 아예 없음"과 "칸은 있는데 undefined"를 엄격히 구분해서
+// 백엔드 세션 때처럼 조건부 스프레드를 계속 써야 한다.
+// 백엔드도 title ?? null / location ?? null로 받고 있으니
+// 프론트에서 처음부터 null로 맞춰 보내면 양쪽이 깔끔하게 일치한다.  
+export interface CreateDiaryPayload {
+  title: string | null;
+  content: string;
+  emotion: Emotion;
+  location: string | null;
+}
