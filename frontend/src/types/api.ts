@@ -20,3 +20,11 @@ export interface ApiFailure {
 // "이건 ApiSuccess" / "이건 ApiFailure"를 구분해준다.
 // 봉투에 찍힌 도장(success)만 보고 내용물 타입을 알아챈다.  
 export type ApiResponse<T> = ApiSuccess<T> | ApiFailure;
+
+// 성공했다는 것만 알린 후, 싣고 나를 짐(data)은 없는 응답.
+// 예: DELETE /diaries/:id — "삭제했다" 한마디면 끝이라 돌려줄 물건이 없다.
+// 비유: 택배 기사에게 "수거 완료" 라는 문자만 보내는 상황
+//      보낼땐 상자가 있었지만, 돌아올 땐 확인 문자만 온다.
+export type ApiMessageResponse =
+  | { success: true; message: string }
+  | ApiFailure; 

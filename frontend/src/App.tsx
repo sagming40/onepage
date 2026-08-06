@@ -2,6 +2,8 @@ import { Routes, Route } from "react-router";
 import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
+import DiaryWritePage from "./pages/DiaryWritePage"
+import DiaryDetailPage from "./pages/DiaryDetailPage"
 import ProtectedRoute from "./components/ProtectedRoute";
 
 // Routes/Route = 건물 안내판.
@@ -18,6 +20,22 @@ export default function App() {
           </ProtectedRoute>
         }
       />
+      <Route
+        path="/diaries/new"
+        element={
+          <ProtectedRoute>
+            <DiaryWritePage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/diaries/:id"
+        element={
+          <ProtectedRoute>
+            <DiaryDetailPage />
+          </ProtectedRoute>
+        }
+      />    
       <Route path="/login" element={<LoginPage />} />
       <Route path="/signup" element={<SignupPage />} />
       {/* * = 위 어디에도 걸리지 않은 나머지 전부. 
