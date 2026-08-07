@@ -75,7 +75,6 @@ export const getDiaryDetail = async (params: {
   userId: number;  
 }) => {
   const { diaryId, userId } = params;
-  
   const diary = await diaryRepository.findById(diaryId);
 
   // 1차 방어: 애초에 존재하지 않거나 이미 삭제된 경우.
@@ -90,7 +89,18 @@ export const getDiaryDetail = async (params: {
     throw new DiaryError("일기를 찾을 수 없습니다.", "DIARY_NOT_FOUND");
   }
 
-  return diary;
+  // Repository가 준 diary는 diaryTags(스티커 목록)를 그대로 들고 있다.
+  // 화면은 "공부", "React" 처럼 이름만 있는 array을 원하므로,
+  // { diaryId, tagId, tag: {...} } 같은 내부 연결 구조까지 알 필요가 없다.
+  //
+  // ...rest = diary 안의 diaryTags를 따로 떼어내고, 나머지(title/content 등)는
+  //           그대로 담아두는 문법. "이거 하나만 빼고 나머지는 전부"라는 뜻.
+  const { diaryTags, ...rest } = diary;
+
+  return {
+    ...rest,
+    tags: diaryTags.map((diaryTag) => diaryTag.tag.name),
+  };
 };
 
 // updateDiary = 수정도 상세 조회와 같은 권한 검증을 거친다.
