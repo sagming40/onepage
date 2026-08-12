@@ -118,6 +118,22 @@ export default function DiaryDetailPage() {
             <p className="mt-4 text-sm text-ink/60">📍 {diary.location}</p>
           )}
 
+          {/* 상세 화면에선 읽기 전용으로만 보여준다. tag 수정은 일기 수정 화면이 구현된 뒤에 추가 예정
+              — 이 곳에서 x 버튼이 달린 TagInput을 사용하게 되면 "수정 흐름 없이 부분 수정"이 되어
+                작성 화면과 상세 화면의 역할이 뒤섞인다.  */}
+          {diary.tags.length > 0 && (
+            <div className="mt-4 flex flex-wrap gap-2">
+              {diary.tags.map((tag) => (
+                <span
+                  key={tag}
+                  className="rounded-full bg-[#f1f3f5] px-3 py-1 text-sm text-ink"
+                >
+                  #{tag}
+                </span>  
+              ))}
+            </div>
+          )}      
+
           {diary.aiSummary && (
             <div className="mt-6 rounded-xl bg-[#f1f3f5] p-4">
               <p className="mb-1 text-sm font-medium text-ink">AI 요약</p>

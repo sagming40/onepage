@@ -1,11 +1,13 @@
 import { useState, type FormEvent } from "react";
 import { useNavigate, useSearchParams } from "react-router";
 import { createDiary } from "../api/diaryApi";
+import { replaceDiaryTags } from "../api/tagApi";
 import { EMOTIONS, EMOTION_MAP } from "../constants/emotion";
 import type { Emotion } from "../types/diary";
 import { getErrorMessage } from "../utils/apiError";
 import Input from "../components/Input";
 import Button from "../components/Button";
+import TagInput from "../components/TagInput";
 
 // 쿼리스트링에서 꺼낸 값은 "문자열"일 뿐 Emotion 타입이라는 보장이 없다.
 // value is Emotion = "이 함수가 true를 반환하면, 그 값은 실제로 Emotion이다" 라고
@@ -27,6 +29,7 @@ export default function DiaryWritePage() {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [location, setLocation] = useState("");
+  const [tags, setTags] = useState<string[]>([]);
 
   // useState(() => ...) 처럼 화살표 함수를 넘기면 "지연 초기화 (lazy initializer)"
   // 컴포넌트가 처음 태어날 때마다 딱 한 번만 이 함수를 실행하여 초깃값을 정한다.
@@ -67,10 +70,27 @@ export default function DiaryWritePage() {
       });
       
       if (result.success) {
+        const diaryId = result.data.id;
+
+        // tag를 하나라도 입력했을 때만 별도 요청을 보낸다.
+        // (빈 배열을 보내는 것도 문법적으로 가능하지만, 굳이 헛요청을 만들 필요는 없다)
+        if (tags.length > 0) {
+          try {
+            await replaceDiaryTags(diaryId, { tags });
+          } catch (tagError) {
+            // ⚠️ catch를 한 번 더 두는 이유:
+            // 일기 본문을 이미 저장에 성공한 상태. tag 저장만 실패했다고
+            // "일기 저장 실패"로 취급하여 사용자를 다시 이 화면에 붙잡아두면
+            // 사용자 입장에서 방금 쓴 제목/내용을 통째로 재입력해야 하는 상황이 되어버린다.
+            // 콘솔에만 기록하고, User Flow는 그대로 진행시킨다.
+            console.error("태그 저장 실패:", tagError);
+          }
+        }
+
         // 방금 만든 일기의 번호(id)로 곧장 상세 화면으로 이동
         // "저장 완료" 토스트는 04_ui-ux-design.md 9절에 있는 내용이지만
         // M1 범위에선 일단 페이지 이동으로 결과를 확인하는 것으로 구현
-        navigate(`/diaries/${result.data.id}`); 
+        navigate(`/diaries/${diaryId}`); 
       } else {
         setErrorMessage(result.message);
       }
@@ -142,6 +162,11 @@ export default function DiaryWritePage() {
             value={location}
             onChange={(e) => setLocation(e.target.value)}
           />
+
+          <div className="flex flex-col gap-1">
+            <p className="text-sm font-medium text-ink">태그 (선택)</p>
+            <TagInput tags={tags} onChange={setTags} />
+          </div>
 
           {errorMessage && (
             <p className="text-sm text-danger">{errorMessage}</p>
