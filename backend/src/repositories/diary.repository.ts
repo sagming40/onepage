@@ -73,6 +73,16 @@ export const findManyByUserId = async (params: {
 export const findById = async (id: number) => {
   return prisma.diary.findFirst({
     where: { id, ...notDeleted },
+    // include = 상자를 열 때 "라벨(diaryTags)도 같이 꺼내라" 라고 지시하는 것
+    // diaryTags 하나만 include하게 되면 { tagId: 2 } 처럼 숫자만 딸려온다.
+    // 그 안의 tag까지 한 번 더 include해야 실제 이름("공부")까지 따라온다.
+    // → include를 중첩해서 쓰는 이유: 스티커(diaryTags)만 보면 몇 번 label인지 모르고,
+    //   label장(tag)까지 봐야 "공부"라는 실제 글자를 알 수 있다.
+    include: {
+      diaryTags: {
+        include: { tag: true },
+      },
+    },
   });  
 };
 

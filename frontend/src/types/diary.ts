@@ -26,7 +26,11 @@ export interface Diary extends DiaryListItem {
   content: string;
   location: string | null;
   aiSummary: string | null;
-  updatedAt: string;  
+  updatedAt: string;
+  // 상세 조회에서만 내려오는 필드
+  // Backend의 getDiaryDetail이 diaryTags를 tags: string[]로 가공하여 넘기므로
+  // 이 곳도 이름/타입을 1:1로 맟춘다. ("공부"처럼 이름만 있는 배열)
+  tags: string[];  
 }
 
 // GET /diaries 응답의 data 안에 실제로 들어있는 모양.
@@ -55,4 +59,10 @@ export interface CreateDiaryPayload {
   content: string;
   emotion: Emotion;
   location: string | null;
+}
+
+// PUT /diaries/:id/tags 요청 시 서버로 보내는 모양
+// Backend가 { tags: string[] } 형태를 기대하므로 그대로 맟춘다.
+export interface ReplaceTagsPayload {
+  tags: string[];
 }
